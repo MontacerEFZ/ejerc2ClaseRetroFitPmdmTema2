@@ -1,6 +1,8 @@
 package montacer.elfazazi.ejerc2claseretrofitpmdmtema2.adapters;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.TextureView;
 import android.view.View;
@@ -15,6 +17,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import montacer.elfazazi.ejerc2claseretrofitpmdmtema2.CharacterActivity;
 import montacer.elfazazi.ejerc2claseretrofitpmdmtema2.R;
 import montacer.elfazazi.ejerc2claseretrofitpmdmtema2.modelos.Character;
 
@@ -48,6 +51,18 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         Picasso.get()
                 .load(character.getImage())
                 .into(holder.imgPhoto);
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, CharacterActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putInt("ID", character.getId());
+
+                intent.putExtras(bundle);
+                context.startActivity(intent);
+            }
+        });
     }
 
     @Override

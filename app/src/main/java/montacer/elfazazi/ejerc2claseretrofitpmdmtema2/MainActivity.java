@@ -1,10 +1,12 @@
 package montacer.elfazazi.ejerc2claseretrofitpmdmtema2;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+import android.widget.NumberPicker;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -30,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
     private Retrofit retrofit;
     private ApiConexiones api;
 
+    private String nextPage;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +52,41 @@ public class MainActivity extends AppCompatActivity {
         api = retrofit.create(ApiConexiones.class);
 
         cargarDatosIniciales();
+
+        binding.contenedorMain.addOnScrollListener(new RecyclerView.OnScrollListener() { //al escribir "new" se abrira un cuadro para elegir, elegimos el segundo en este caso
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (!recyclerView.canScrollVertically(1)) {//1 es vertical, 0 es horizontal
+                    if (nextPage != null){
+                        int num = Integer.parseInt(nextPage.split("=")[1]);
+                        cargarMasDatos(num);
+                    }
+
+                }
+            }
+        });
+    }
+
+    private void cargarMasDatos(int num) {
+        Call<Respuesta> cogerPagina = api.getPage(num);
+
+        cogerPagina.enqueue(new Callback<Respuesta>() {
+            @Override
+            public void onResponse(Call<Respuesta> call, Response<Respuesta> response) {
+                if (response.code() == HttpsURLConnection.HTTP_OK){
+                    int longitud = listCharacters.size();
+                    listCharacters.addAll(response.body().getResults());
+                    adapter.notifyItemRangeInserted(longitud, listCharacters.size());
+                    nextPage = response.body().getInfo().getNext();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Respuesta> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "error", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void cargarDatosIniciales() {
@@ -57,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<Respuesta> call, Response<Respuesta> response) {
                 if (response.code() == HttpsURLConnection.HTTP_OK){
+                    nextPage = response.body().getInfo().getNext();
                     listCharacters.addAll(response.body().getResults());
                     adapter.notifyItemRangeInserted(0, listCharacters.size());
                 }

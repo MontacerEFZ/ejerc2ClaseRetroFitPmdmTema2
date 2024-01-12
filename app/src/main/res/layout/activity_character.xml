@@ -13,8 +13,7 @@
         android:layout_width="300dp"
         android:layout_height="300dp"
         android:layout_gravity="center"
-        android:layout_marginTop="10dp"
-        android:src="@tools:sample/avatars" />
+        android:layout_marginTop="10dp"/>
 
     <TextView
         android:id="@+id/lbNameCharacter"
